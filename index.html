@@ -12,7 +12,7 @@
     version: '1.0.0',
     date: '2026년 9월 8일',
     price: '39,000원',                         // ← '문의' 로 두면 "가격 문의"로 표시됩니다
-    contact: 'flow21c@naver.com',              // ← 문의 메일
+    contact: 'flo21c@naver.com',               // ← 문의 메일
     installer: {
       url: 'https://github.com/flo21c/flow21c/releases/download/v1.0.0/FlowMind-Setup-1.0.0.exe',
       name: 'FlowMind-Setup-1.0.0.exe',
@@ -287,6 +287,18 @@
   .plan.free li { color: var(--muted); }
   .plan li strong { color: var(--ink); font-weight: 600; }
 
+  /* 무료 카드 - 쓸 수 있는 기능을 가로로 늘어놓는다 */
+  .plan-lead { margin: 0; font-size: .9375rem; color: var(--muted); }
+  .plan-lead strong { color: var(--ink); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .chips span {
+    font-size: .8125rem; line-height: 1.5;
+    background: var(--raise); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: .22rem .7rem; white-space: nowrap;
+  }
+  .plan-foot { margin: auto 0 0; font-size: .875rem; color: var(--muted); padding-top: .25rem; }
+
   /* ================= 다운로드 ================= */
   #download .shell { display: flex; flex-direction: column; gap: 1.5rem; }
   .dl-grid { display: grid; gap: .75rem; }
@@ -490,12 +502,24 @@
       <div class="plan free">
         <h3>먼저 써보기</h3>
         <div class="price">무료 <small>설치 후 24시간</small></div>
-        <ul>
-          <li>정품과 <strong>기능 차이 없음</strong></li>
-          <li>회원가입도, 결제 정보도 <strong>넣지 않습니다</strong></li>
-          <li>내려받아 실행하면 바로 시작</li>
-          <li>마음에 드시면 그대로 인증키만 넣으면 됩니다</li>
-        </ul>
+        <p class="plan-lead">아래 기능을 <strong>하나도 잠그지 않고</strong> 전부 열어드립니다.</p>
+        <div class="chips">
+          <span>마인드맵 무제한</span>
+          <span>키보드 편집</span>
+          <span>가지 접기·펴기</span>
+          <span>노드 색상 8종</span>
+          <span>자동 정렬</span>
+          <span>노드별 주석</span>
+          <span>글꼴·크기·두께·색</span>
+          <span>사진 삽입</span>
+          <span>사진 크기 조절·회전</span>
+          <span>CSV 엑셀 연동</span>
+          <span>PNG 내보내기</span>
+          <span>자동 저장</span>
+          <span>파일 저장·열기</span>
+          <span>다크 모드</span>
+        </div>
+        <p class="plan-foot">회원가입도 결제 정보도 필요 없습니다. 마음에 드시면 인증키만 넣으면 됩니다.</p>
       </div>
       <div class="plan paid">
         <h3>정품 라이선스</h3>
