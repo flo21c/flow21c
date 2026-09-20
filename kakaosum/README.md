@@ -8,7 +8,38 @@
 * 결정된 것, 할 일, 일정, 답이 없는 질문, 공유된 링크, 금액 언급을 자동으로 뽑아냅니다.
 * `--ai` 를 붙이면 Claude 가 쓴 자연어 요약을 덧붙일 수 있습니다. (선택)
 
-## 설치
+## 실행파일로 쓰기 (파이썬 설치 없이)
+
+실행파일은 두 가지가 만들어집니다.
+
+| 파일 | 쓰는 법 |
+|---|---|
+| `kakaosum.exe` | 대화 `.txt` 를 **이 파일 위로 끌어다 놓으면** 바로 요약이 화면에 나옵니다. 그냥 더블클릭하면 파일 경로를 물어보고, 원본 옆에 `대화_요약.md` 로 저장합니다. 명령줄 옵션도 그대로 씁니다. |
+| `kakaosum-gui.exe` | 창이 열립니다. 파일 고르기 → 옵션 선택 → **요약 만들기** → 저장/복사. |
+
+### 받기
+
+1. 저장소의 **Releases** 에 올라온 파일을 내려받거나,
+2. **Actions → kakaosum 실행파일 빌드 → Run workflow** 를 돌린 뒤 결과(Artifacts)를 내려받습니다.
+   `kakaosum-v0.1.0` 같은 태그를 밀면 빌드 후 릴리스에 자동으로 붙습니다.
+
+```bash
+git tag kakaosum-v0.1.0 && git push origin kakaosum-v0.1.0
+```
+
+### 직접 만들기
+
+윈도우에서 `packaging\build.bat` 을 더블클릭하면 `dist\` 에 두 개가 만들어집니다.
+(리눅스·macOS 는 `packaging/build.sh`)
+
+```bat
+packaging\build.bat
+```
+
+> 서명하지 않은 실행파일이라 윈도우에서 "PC 보호" 경고가 뜰 수 있습니다.
+> *추가 정보 → 실행* 으로 넘어가거나, FlowMind 설치 파일처럼 코드 서명을 붙이면 됩니다.
+
+## 설치 (파이썬으로 쓰기)
 
 ```bash
 cd kakaosum
@@ -159,5 +190,16 @@ src/kakaosum/
   summarize.py   Summary 조립
   render.py      마크다운 · 텍스트 · JSON 출력
   ai.py          Claude 자연어 요약 (선택)
-  cli.py         명령줄 인터페이스
+  cli.py         명령줄 인터페이스 (끌어다 놓기·대화형 모드 포함)
+  gui.py         창으로 쓰는 버전 (tkinter, 표준 라이브러리)
+packaging/
+  kakaosum.spec  PyInstaller 빌드 설정 (콘솔용 + 창용)
+  build.bat      윈도우에서 실행파일 만들기
+  build.sh       리눅스·macOS 에서 실행파일 만들기
+.github/workflows/
+  kakaosum-test.yml   푸시할 때마다 테스트
+  kakaosum-build.yml  윈도우·리눅스·macOS 실행파일 빌드 및 릴리스
 ```
+
+> 참고: 실행파일에는 AI 요약용 `anthropic` 패키지가 들어 있지 않습니다.
+> `--ai` 가 필요하면 파이썬으로 설치해 쓰세요.

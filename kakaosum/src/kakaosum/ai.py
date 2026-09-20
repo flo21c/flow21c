@@ -122,7 +122,8 @@ def _client(api_key: str | None):
     except ImportError as exc:  # pragma: no cover - 설치 여부에 따른 분기
         raise AIError(
             "AI 요약에는 anthropic 패키지가 필요합니다.\n"
-            '  pip install "kakaosum[ai]"'
+            '  pip install "kakaosum[ai]"\n'
+            "  (실행파일에는 들어 있지 않습니다. 파이썬으로 설치해 주세요.)"
         ) from exc
     try:
         return anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()

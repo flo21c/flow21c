@@ -219,6 +219,50 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 COMMANDS = {"summarize": cmd_summarize, "stats": cmd_stats, "export": cmd_export}
 
+BANNER = """\
+kakaosum — 카카오톡 대화 요약기
+카카오톡에서 '대화 내용 내보내기 → 텍스트만 보내기' 로 저장한 .txt 파일을 넣어 주세요.
+(파일을 이 창에 끌어다 놓아도 됩니다. 그냥 끝내려면 Enter)
+"""
+
+
+def interactive() -> int:
+    """인자 없이 실행했을 때(예: exe 더블클릭) 물어 가며 요약한다."""
+    print(BANNER)
+    answer = input("대화 파일 경로: ").strip().strip('"').strip("'")
+    if not answer:
+        return 0
+
+    path = Path(answer)
+    if not path.exists():
+        print(f"파일을 찾을 수 없습니다: {path}")
+        input("Enter 를 누르면 닫힙니다...")
+        return 1
+
+    try:
+        log = parse_file(path)
+        summary = summarize(log)
+        text = render(summary, "markdown")
+    except ParseError as exc:
+        print(f"오류: {exc}")
+        input("Enter 를 누르면 닫힙니다...")
+        return 2
+
+    target = path.with_name(f"{path.stem}_요약.md")
+    target.write_text(text, encoding="utf-8")
+    print()
+    print(summary.headline)
+    print(f"요약을 저장했습니다: {target}")
+    input("Enter 를 누르면 닫힙니다...")
+    return 0
+
+
+def _normalize_argv(args: list[str]) -> list[str]:
+    """파일을 exe 에 끌어다 놓으면 'summarize 파일' 로 바꿔 준다."""
+    if args and args[0] not in COMMANDS and not args[0].startswith("-") and Path(args[0]).exists():
+        return ["summarize", *args]
+    return args
+
 
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
@@ -227,7 +271,11 @@ def main(argv: list[str] | None = None) -> int:
         except (AttributeError, ValueError):  # pragma: no cover
             pass
 
-    args = build_parser().parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    if not raw and sys.stdin.isatty():
+        return interactive()
+
+    args = build_parser().parse_args(_normalize_argv(raw))
     try:
         return COMMANDS[args.command](args)
     except ParseError as exc:

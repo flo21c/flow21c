@@ -1,0 +1,104 @@
+name: kakaosum 실행파일 빌드
+
+# 실행파일이 필요할 때:
+#   1) Actions 탭에서 이 워크플로를 'Run workflow' 로 직접 돌리거나,
+#   2) kakaosum-v1.0.0 처럼 태그를 밀면 자동으로 빌드되고 릴리스에 붙습니다.
+#      git tag kakaosum-v0.1.0 && git push origin kakaosum-v0.1.0
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'kakaosum-v*'
+
+jobs:
+  build:
+    name: ${{ matrix.label }} 실행파일
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: windows
+          - os: ubuntu-latest
+            label: linux
+          - os: macos-latest
+            label: macos
+    defaults:
+      run:
+        working-directory: kakaosum
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 빌드 도구 설치
+        run: python -m pip install --upgrade pip pyinstaller
+
+      - name: kakaosum 설치
+        run: python -m pip install .
+
+      - name: 테스트
+        run: python -m unittest discover -s tests
+
+      - name: 실행파일 만들기
+        run: python -m PyInstaller --noconfirm --clean packaging/kakaosum.spec
+
+      - name: 동작 확인 (윈도우)
+        if: runner.os == 'Windows'
+        run: |
+          dist\kakaosum.exe --version
+          dist\kakaosum.exe summarize samples\sample_android.txt -f text --group none
+
+      - name: 동작 확인 (윈도우 외)
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/kakaosum --version
+          ./dist/kakaosum summarize samples/sample_android.txt -f text --group none
+
+      - name: 결과 올리기
+        uses: actions/upload-artifact@v4
+        with:
+          name: kakaosum-${{ matrix.label }}
+          path: kakaosum/dist/*
+          if-no-files-found: error
+
+  release:
+    name: 릴리스에 붙이기
+    if: startsWith(github.ref, 'refs/tags/kakaosum-v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 파일 정리
+        run: |
+          mkdir -p release
+          for dir in artifacts/*/; do
+            suffix="$(basename "$dir")"          # kakaosum-windows
+            suffix="${suffix#kakaosum-}"         # windows
+            for file in "$dir"*; do
+              name="$(basename "$file")"
+              case "$name" in
+                *.exe) cp "$file" "release/${name%.exe}-${suffix}.exe" ;;
+                *)     cp "$file" "release/${name}-${suffix}" ;;
+              esac
+            done
+          done
+          ls -lh release
+
+      - name: 릴리스 만들기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release/* \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "kakaosum ${GITHUB_REF_NAME#kakaosum-}" \
+            --notes "카카오톡 대화 요약기 실행파일입니다. 윈도우는 kakaosum-windows.exe(명령줄) 또는 kakaosum-gui-windows.exe(창)를 받으세요." \
+            || gh release upload "${GITHUB_REF_NAME}" release/* --repo "${GITHUB_REPOSITORY}" --clobber

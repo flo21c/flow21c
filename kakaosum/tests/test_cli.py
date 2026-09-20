@@ -6,7 +6,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
-from kakaosum.cli import main
+from kakaosum.cli import _normalize_argv, interactive, main
 
 CHAT = """\
 개발팀님과 카카오톡 대화
@@ -118,6 +118,52 @@ class CliTest(unittest.TestCase):
         code, _, err = run(["summarize", str(junk)])
         self.assertEqual(code, 2)
         self.assertIn("대화 내보내기", err)
+
+    def test_dragged_file_is_treated_as_summarize(self):
+        # exe 위로 파일을 끌어다 놓으면 인자가 경로 하나뿐이다
+        self.assertEqual(
+            _normalize_argv([str(self.path)]), ["summarize", str(self.path)]
+        )
+
+    def test_normalize_leaves_commands_alone(self):
+        self.assertEqual(_normalize_argv(["stats", "a.txt"]), ["stats", "a.txt"])
+        self.assertEqual(_normalize_argv(["--version"]), ["--version"])
+        self.assertEqual(_normalize_argv([]), [])
+
+    def test_summarize_via_dragged_path(self):
+        code, out, _ = run([str(self.path)])
+        self.assertEqual(code, 0)
+        self.assertIn("# 카카오톡 대화 요약", out)
+
+    def test_interactive_saves_next_to_source(self):
+        answers = iter([str(self.path), ""])
+        code, out, _ = self._with_input(lambda prompt="": next(answers), interactive)
+        self.assertEqual(code, 0)
+        saved = self.path.with_name(f"{self.path.stem}_요약.md")
+        self.assertTrue(saved.exists())
+        self.assertIn("요약을 저장했습니다", out)
+
+    def test_interactive_with_missing_file(self):
+        answers = iter(["없는파일.txt", ""])
+        code, out, _ = self._with_input(lambda prompt="": next(answers), interactive)
+        self.assertEqual(code, 1)
+        self.assertIn("찾을 수 없습니다", out)
+
+    def test_interactive_empty_answer_quits(self):
+        code, _, _ = self._with_input(lambda prompt="": "", interactive)
+        self.assertEqual(code, 0)
+
+    def _with_input(self, fake_input, func):
+        import builtins
+
+        original, builtins.input = builtins.input, fake_input
+        out, err = io.StringIO(), io.StringIO()
+        try:
+            with redirect_stdout(out), redirect_stderr(err):
+                code = func()
+        finally:
+            builtins.input = original
+        return code, out.getvalue(), err.getvalue()
 
     def test_ai_without_confirmation_is_skipped(self):
         # 표준 입력이 터미널이 아니면 물어볼 수 없으므로 AI 요약을 건너뛴다
