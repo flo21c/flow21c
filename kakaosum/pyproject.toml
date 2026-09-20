@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kakaosum"
+version = "0.1.0"
+description = "카카오톡 대화 내보내기 파일을 정리하고 요약해 주는 도구"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["kakaotalk", "korean", "chat", "summary", "카카오톡", "요약"]
+classifiers = [
+  "Environment :: Console",
+  "Natural Language :: Korean",
+  "Programming Language :: Python :: 3",
+  "Topic :: Text Processing :: Linguistic",
+]
+dependencies = []
+
+[project.optional-dependencies]
+ai = ["anthropic>=0.40"]
+
+[project.scripts]
+kakaosum = "kakaosum.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+kakaosum = ["py.typed"]
