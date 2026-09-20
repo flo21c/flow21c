@@ -271,6 +271,22 @@ class App:
         self.status_var.set("클립보드에 복사했습니다.")
 
 
+def _report_startup_failure(message: str) -> None:
+    """창을 못 띄웠을 때 알린다.
+
+    창 모드 실행파일은 콘솔이 없어 stderr 가 보이지 않는다. 윈도우에서는
+    기본 메시지 상자를 띄워 '눌렀는데 아무 일도 안 일어나는' 상황을 막는다.
+    """
+    print(message, file=sys.stderr)
+    if sys.platform == "win32":  # pragma: no cover - 윈도우에서만 동작
+        try:
+            import ctypes
+
+            ctypes.windll.user32.MessageBoxW(None, message, WINDOW_TITLE, 0x10)
+        except Exception:
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
     """창을 띄운다. 인자로 받은 파일이 있으면 미리 채워 넣는다."""
     args = list(sys.argv[1:] if argv is None else argv)
@@ -279,9 +295,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         import tkinter as tk
     except ImportError:
-        print(
-            "창 모드를 쓰려면 tkinter 가 필요합니다. 명령줄에서 'kakaosum summarize 파일.txt' 를 쓰세요.",
-            file=sys.stderr,
+        _report_startup_failure(
+            "창 모드를 쓰려면 tkinter 가 필요합니다.\n"
+            "명령줄 버전(kakaosum summarize 파일.txt)을 사용해 주세요."
         )
         return 1
 

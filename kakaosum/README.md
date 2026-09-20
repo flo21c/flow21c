@@ -27,14 +27,23 @@
 git tag kakaosum-v0.1.0 && git push origin kakaosum-v0.1.0
 ```
 
-### 직접 만들기
+### 직접 만들기 (윈도우)
 
-윈도우에서 `packaging\build.bat` 을 더블클릭하면 `dist\` 에 두 개가 만들어집니다.
-(리눅스·macOS 는 `packaging/build.sh`)
+1. [python.org](https://www.python.org/downloads/) 에서 파이썬을 설치합니다.
+   설치 화면의 **"Add python.exe to PATH"** 를 꼭 체크하세요. (이미 있으면 넘어갑니다)
+2. 이 폴더의 `packaging\build.bat` 을 **더블클릭**합니다.
+3. 2~3분 뒤 `dist\` 폴더가 열리고, 안에 실행파일 두 개가 있습니다.
 
 ```bat
 packaging\build.bat
 ```
+
+빌드에 필요한 것들은 `.build-venv` 폴더(가상환경) 안에만 설치되므로
+**시스템 파이썬은 건드리지 않습니다.** 실패하면 `build-log.txt` 에 원인이 남습니다.
+리눅스·macOS 는 `packaging/build.sh` 로 같은 일을 합니다.
+
+만들어진 실행파일은 그 폴더만 있으면 어디서든 돌아갑니다. 파이썬이 없는
+다른 컴퓨터로 `kakaosum.exe` 하나만 복사해 가도 동작합니다.
 
 > 서명하지 않은 실행파일이라 윈도우에서 "PC 보호" 경고가 뜰 수 있습니다.
 > *추가 정보 → 실행* 으로 넘어가거나, FlowMind 설치 파일처럼 코드 서명을 붙이면 됩니다.
