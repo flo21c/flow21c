@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>kakaosum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper:      #fbfafc;
+    --surface:    #ffffff;
+    --raise:      #f4f2fa;
+    --ink:        #191627;
+    --muted:      #6c6884;
+    --faint:      #928dab;
+    --line:       #e7e4f0;
+    --line-soft:  #f0edf7;
+    --brand:      #534ab7;
+    --brand-hover:#453d9e;
+    --brand-on:   #ffffff;
+    --brand-wash: #efedfb;
+    --ok:         #1c7a52;
+    --ok-wash:    #e7f5ee;
+    --info:       #2f5fbd;
+    --info-wash:  #e9eff9;
+    --shadow-sm:  0 1px 2px rgba(25,22,39,.05);
+    --shadow-lg:  0 2px 6px rgba(25,22,39,.05), 0 24px 50px -32px rgba(83,74,183,.45);
+
+    --sans: "IBM Plex Sans KR", "맑은 고딕", "Malgun Gothic", system-ui, sans-serif;
+    --display: "Gothic A1", "IBM Plex Sans KR", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "D2Coding", ui-monospace, "Courier New", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #101019;
+      --surface:    #191927;
+      --raise:      #202030;
+      --ink:        #eceaf6;
+      --muted:      #9a96b8;
+      --faint:      #7d78a0;
+      --line:       #2b2a41;
+      --line-soft:  #232236;
+      --brand:      #9086f0;
+      --brand-hover:#a49bf5;
+      --brand-on:   #14112a;
+      --brand-wash: #232042;
+      --ok:         #5fce9d;
+      --ok-wash:    #16281f;
+      --info:       #8fb0f5;
+      --info-wash:  #1a2138;
+      --shadow-sm:  0 1px 2px rgba(0,0,0,.5);
+      --shadow-lg:  0 2px 6px rgba(0,0,0,.4), 0 28px 60px -36px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #101019;
+    --surface:    #191927;
+    --raise:      #202030;
+    --ink:        #eceaf6;
+    --muted:      #9a96b8;
+    --faint:      #7d78a0;
+    --line:       #2b2a41;
+    --line-soft:  #232236;
+    --brand:      #9086f0;
+    --brand-hover:#a49bf5;
+    --brand-on:   #14112a;
+    --brand-wash: #232042;
+    --ok:         #5fce9d;
+    --ok-wash:    #16281f;
+    --info:       #8fb0f5;
+    --info-wash:  #1a2138;
+    --shadow-sm:  0 1px 2px rgba(0,0,0,.5);
+    --shadow-lg:  0 2px 6px rgba(0,0,0,.4), 0 28px 60px -36px rgba(0,0,0,.9);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding-inline: 20px; padding-block: 0 56px; }
+
+  /* ---- 머리말 ---- */
+  header.top {
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    padding-block: 22px 20px;
+  }
+  header.top .wrap { padding-block: 0; }
+  .brandline { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .logo { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: -.02em; }
+  .logo em { font-style: normal; color: var(--brand); }
+  .tagline { color: var(--muted); font-size: 14px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .badge {
+    font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px;
+    background: var(--ok-wash); color: var(--ok); border: 1px solid transparent;
+  }
+  .badge.neutral { background: var(--raise); color: var(--muted); }
+
+  /* ---- 2단 배치 ---- */
+  .columns { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px; align-items: start; margin-top: 28px; }
+  @media (max-width: 880px) { .columns { grid-template-columns: 1fr; gap: 20px; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  @media (min-width: 881px) { .panel.sticky { position: sticky; top: calc(20px + env(safe-area-inset-top, 0px)); } }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .label {
+    font-size: 11px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--faint);
+  }
+
+  /* ---- 파일 놓는 곳 ---- */
+  .drop {
+    border: 1.5px dashed var(--line); border-radius: 12px;
+    background: var(--raise);
+    padding: 22px 16px; text-align: center;
+    display: flex; flex-direction: column; gap: 8px; align-items: center;
+    transition: border-color .15s, background .15s;
+    cursor: pointer;
+  }
+  .drop:hover, .drop.over { border-color: var(--brand); background: var(--brand-wash); }
+  .drop strong { font-family: var(--display); font-weight: 700; font-size: 15px; }
+  .drop span { font-size: 13px; color: var(--muted); }
+  .drop .file { font-family: var(--mono); font-size: 12px; color: var(--brand); word-break: break-all; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    border-radius: 9px; padding: 9px 14px; cursor: pointer; font-weight: 500;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--raise); border-color: var(--brand); }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-on); font-weight: 600; }
+  .btn.primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  select, textarea {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 9px; padding: 8px 10px; width: 100%;
+  }
+  textarea { font-family: var(--mono); font-size: 12.5px; line-height: 1.6; resize: vertical; min-height: 130px; }
+  .check { display: flex; align-items: center; gap: 9px; font-size: 14px; cursor: pointer; }
+  .check input { accent-color: var(--brand); width: 16px; height: 16px; }
+  details > summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  details[open] > summary { margin-bottom: 8px; }
+
+  .status { font-size: 13px; color: var(--muted); min-height: 20px; }
+  .status.error { color: #b3261e; }
+  :root[data-theme="dark"] .status.error, :root:not([data-theme="light"]) .status.error { color: #f2a9a2; }
+  @media (prefers-color-scheme: light) { .status.error { color: #b3261e; } }
+
+  /* ---- 결과 ---- */
+  .report { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .report-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+  .report-title { font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+  .headline { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .sample-note {
+    font-size: 12.5px; color: var(--muted); background: var(--raise);
+    border-left: 3px solid var(--brand); border-radius: 0 8px 8px 0; padding: 8px 12px;
+  }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 10px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .tile .k { font-size: 11px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; }
+  .tile .v { font-family: var(--display); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .tile .s { font-size: 12px; color: var(--muted); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .card > h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--faint); margin-bottom: 14px;
+  }
+  .card.flat { background: transparent; border: 0; padding: 0; }
+
+  /* 참여자 */
+  .people { display: flex; flex-direction: column; gap: 12px; }
+  .person-top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+  .person-name { font-weight: 600; }
+  .person-num { font-family: var(--mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .track { height: 8px; background: var(--line-soft); border-radius: 999px; overflow: hidden; margin-top: 5px; }
+  .track > i { display: block; height: 100%; background: var(--brand); border-radius: 999px; }
+
+  /* 키워드 */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    background: var(--brand-wash); color: var(--brand); border-radius: 999px;
+    padding: 4px 11px; font-size: 13px; font-weight: 500;
+  }
+  .chip b { font-family: var(--mono); font-weight: 400; font-size: 11.5px; opacity: .75; margin-left: 4px; }
+
+  /* 뽑아낸 항목 */
+  .finds { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start; }
+  .find { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px; }
+  .find > h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .find > h3 .count { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--muted); }
+  .find .mark { width: 7px; height: 7px; border-radius: 2px; background: var(--muted); }
+  .find[data-kind="decision"] .mark { background: var(--brand); }
+  .find[data-kind="todo"] .mark { background: var(--ok); }
+  .find[data-kind="schedule"] .mark { background: var(--info); }
+  .lines { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .line { display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: 13.5px; }
+  .line .when { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; padding-top: 2px; }
+  .line .who { font-weight: 600; }
+  .line .what { color: var(--ink); overflow-wrap: anywhere; }
+  .line a { color: var(--brand); }
+
+  /* 날짜별 */
+  .day { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+  .day:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .day-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .day-head .rule { flex: 1; height: 1px; background: var(--line); }
+  .day-date { font-family: var(--mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .day-count { font-size: 12px; color: var(--faint); white-space: nowrap; }
+  .day-keywords { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .day-keywords b { color: var(--ink); font-weight: 600; }
+
+  /* 시간대 차트 */
+  .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; align-items: end; height: 108px; }
+  .hours .col { display: flex; align-items: flex-end; height: 100%; }
+  .hours .col > i {
+    display: block; width: 100%; background: var(--brand); border-radius: 3px 3px 0 0;
+    min-height: 2px; transition: opacity .12s;
+  }
+  .hours .col[data-empty="1"] > i { background: var(--line); }
+  .hours .col:hover > i { opacity: .72; }
+  .hour-axis {
+    display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px;
+    font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 6px;
+  }
+  .hour-axis span { text-align: center; }
+  .chart-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .empty { color: var(--muted); font-size: 14px; }
+
+  footer.bottom {
+    border-top: 1px solid var(--line); margin-top: 40px; padding-top: 20px;
+    color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 6px;
+  }
+  footer.bottom code { font-family: var(--mono); font-size: 12.5px; background: var(--raise); padding: 1px 6px; border-radius: 5px; }
+  footer.bottom a { color: var(--brand); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media print {
+    .panel, header.top .badges, footer.bottom { display: none; }
+    .columns { grid-template-columns: 1fr; }
+    body { background: #fff; }
+  }
+</style>
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brandline">
+      <span class="logo">kakao<em>sum</em></span>
+      <span class="tagline">카카오톡에서 내보낸 대화 .txt 를 정리해 요약합니다</span>
+    </div>
+    <div class="badges">
+      <span class="badge">모든 처리가 이 브라우저 안에서 끝납니다 · 파일은 어디에도 올라가지 않습니다</span>
+      <span class="badge neutral">안드로이드 · 아이폰 · PC 내보내기 형식</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="columns">
+    <!-- 입력 -->
+    <section class="panel sticky" aria-label="대화 넣기">
+      <div class="field">
+        <span class="label">1. 대화 넣기</span>
+        <div class="drop" id="drop" role="button" tabindex="0" aria-describedby="drop-help">
+          <strong>파일을 여기에 끌어다 놓기</strong>
+          <span id="drop-help">또는 눌러서 .txt 고르기</span>
+          <span class="file" id="file-name" hidden></span>
+        </div>
+        <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+        <details id="paste-box">
+          <summary>대화 내용을 붙여넣기</summary>
+          <textarea id="paste" placeholder="[홍길동] [오후 1:23] 안녕하세요&#10;[김철수] [오후 1:24] 네 안녕하세요" spellcheck="false"></textarea>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn small" id="use-paste" type="button">이 내용으로 요약</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="field">
+        <span class="label">2. 옵션</span>
+        <label class="field" style="gap:5px">
+          <span style="font-size:13px;color:var(--muted)">기간</span>
+          <select id="period">
+            <option value="0">전체 기간</option>
+            <option value="7">최근 7일</option>
+            <option value="30">최근 30일</option>
+            <option value="90">최근 90일</option>
+          </select>
+        </label>
+        <label class="field" style="gap:5px">
+          <span style="font-size:13px;color:var(--muted)">정리 방식</span>
+          <select id="group">
+            <option value="day">날짜별로</option>
+            <option value="session">대화 덩어리별로</option>
+            <option value="none">나누지 않기</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="opt-mask"> 이름 가리기 (참여자 A)</label>
+        <label class="check"><input type="checkbox" id="opt-redact"> 전화번호 · 이메일 가리기</label>
+        <label class="check"><input type="checkbox" id="opt-nosystem"> 입 · 퇴장 알림 빼기</label>
+      </div>
+
+      <div class="field">
+        <span class="label">3. 결과</span>
+        <div class="btn-row">
+          <button class="btn primary" id="run" type="button">요약 만들기</button>
+          <button class="btn" id="copy" type="button">마크다운 복사</button>
+          <button class="btn" id="save" type="button">.md 저장</button>
+        </div>
+        <p class="status" id="status" role="status"></p>
+        <div class="btn-row">
+          <button class="btn small" id="load-sample" type="button">예시 대화 다시 넣기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 결과 -->
+    <main class="report" id="report" aria-live="polite"></main>
+  </div>
+
+  <footer class="bottom">
+    <p>키워드와 '결정 · 할 일' 은 말투 패턴으로 찾아냅니다. 놓치거나 더 잡을 수 있으니 원문과 함께 보세요.</p>
+    <p>같은 기능을 명령줄과 실행파일로도 쓸 수 있습니다 — <code>kakaosum summarize 대화.txt</code></p>
+  </footer>
+</div>
+<script>
+/* ============================================================
+   kakaosum 웹 버전 - 파이썬 패키지(src/kakaosum)와 같은 규칙을 옮긴 것.
+   대화 내용은 이 페이지 밖으로 나가지 않는다. 네트워크 요청 없음.
+   ============================================================ */
+
+const SAMPLE = `플로우마인드 개발팀님과 카카오톡 대화
+저장한 날짜 : 2026-09-07 21:10:00
+
+--------------- 2026년 9월 1일 화요일 ---------------
+[박지훈] [오전 9:12] 다들 좋은 아침입니다
+[박지훈] [오전 9:12] 이번 주에 1.1 버전 기능 확정해야 해서 오늘 오후에 잠깐 회의하면 좋을 것 같아요
+[김서연] [오전 9:20] 네 좋습니다. 오후 3시 어떠세요?
+[이민호] [오전 9:24] 저는 3시 괜찮습니다
+[박지훈] [오전 9:25] 그럼 오후 3시에 하기로 하죠
+[김서연] [오전 9:26] 회의 전에 지난 버전 피드백 정리해서 공유드릴게요
+[이민호] [오전 11:02] 사진
+[이민호] [오전 11:02] 사용자분이 보내주신 오류 화면입니다. PNG 주석 저장할 때 글씨가 깨진다고 하시네요
+[박지훈] [오전 11:15] 폰트 임베딩 문제 같은데 제가 오늘 확인해볼게요
+[김서연] [오후 2:50] 피드백 정리본 올립니다 https://docs.example.com/feedback-1-0
+[박지훈] [오후 3:41] 회의 정리하면
+1. PNG 주석 글씨 깨짐 수정 (박지훈)
+2. 서브 노드 단축키 추가 (이민호)
+3. 체험 기간 안내 문구 수정 (김서연)
+[김서연] [오후 3:42] 넵 확인했습니다
+[이민호] [오후 3:45] 단축키는 Ctrl+Enter 로 하면 될까요?
+[박지훈] [오후 4:10] 그게 좋겠네요
+
+--------------- 2026년 9월 2일 수요일 ---------------
+[박지훈] [오전 10:05] 폰트 임베딩 원인 찾았습니다. 맑은 고딕이 아닌 폰트를 쓸 때만 깨지네요
+[김서연] [오전 10:12] 다행이네요. 수정은 언제쯤 가능하실까요?
+[박지훈] [오전 10:15] 내일까지 고쳐서 올리겠습니다
+[이민호] [오후 1:30] 단축키 작업 중인데 기존 Ctrl+Enter 가 이미 새 문서에 쓰이고 있어요
+[이민호] [오후 1:31] Alt+Enter 로 바꿔도 될까요?
+[김서연] [오후 1:40] 저는 괜찮습니다
+[박지훈] [오후 2:02] Alt+Enter 로 가시죠
+[이민호] [오후 2:03] 넵
+[김서연] [오후 6:20] 체험 기간 문구는 "설치하면 24시간 무료로 써보실 수 있습니다" 로 확정했습니다
+
+--------------- 2026년 9월 4일 금요일 ---------------
+[박지훈] [오전 9:30] 폰트 수정 올렸습니다. 빌드 해시도 갱신했어요
+[이민호] [오전 9:45] 확인해보겠습니다
+[김서연] [오전 10:20] 가격 정책은 어떻게 할까요? 39,000원 그대로 갈까요?
+[이민호] [오전 11:50] 단축키 작업 끝났습니다. 테스트 부탁드려요
+[김서연] [오후 12:05] 점심 먹고 확인할게요
+[박지훈] [오후 3:00] 두 개 다 잘 되네요. 다음 주 월요일에 1.1 배포하기로 합시다
+[김서연] [오후 3:02] 좋습니다
+[이민호] [오후 3:05] 배포 전에 설치 파일 서명도 확인해야 합니다
+[박지훈] [오후 3:10] 그건 제가 주말에 확인해서 월요일 오전에 공유드릴게요
+[김서연] [오후 3:12] 감사합니다
+이민호님이 나갔습니다.`;
+
+/* ---------- 1. 파서 ---------- */
+
+const KIND = { TEXT: "text", MEDIA: "media", EMOTICON: "emoticon", DELETED: "deleted", SYSTEM: "system" };
+
+const TIME = String.raw`(?:오전|오후|AM|PM|am|pm)?\s?\d{1,2}:\d{2}(?:\s?(?:AM|PM|am|pm))?`;
+const BRACKET_RE = new RegExp(String.raw`^\[(.+?)\]\s\[(${TIME})\]\s?(.*)$`);
+const INLINE_RE = new RegExp(
+  String.raw`^(\d{4})\s*[.년]\s*(\d{1,2})\s*[.월]\s*(\d{1,2})\s*[.일]?\s+(${TIME})\s*[,:]?\s+(.*)$`
+);
+const SEPARATOR_RE = /^-{3,}\s*(.+?)\s*-{3,}$/;
+const KO_DATE_RE = /(\d{4})\s*[.년]\s*(\d{1,2})\s*[.월]\s*(\d{1,2})\s*일?/;
+const BARE_DATE_RE = /^\d{4}\s*[.년]\s*\d{1,2}\s*[.월]\s*\d{1,2}\s*일?\s*[월화수목금토일]?요?일?$/;
+const HEADER_TITLE_RE = /^(.*?)\s*(?:님과(?:의)?\s*)?카카오톡\s*대화$/;
+const SAVED_AT_RE = /^저장한\s*날짜\s*:\s*(.+?)\s*$/;
+
+const SYSTEM_PATTERNS = [
+  /님이 (들어왔|나갔|퇴장하였)습니다\.?$/,
+  /님을 (내보냈|초대했|초대하였)습니다\.?$/,
+  /님이 .*(방장|관리자).*(되었|됐)습니다\.?$/,
+  /^(채팅방|그룹채팅방|오픈채팅방).*(개설|변경|생성)/,
+  /운영정책/,
+  /(공지|투표)(가|를) (등록|시작|종료)/,
+  /^(저장한 날짜|카카오톡 대화)/,
+];
+const MEDIA_PATTERNS = [
+  /^사진(\s*\d+장)?$/, /^동영상$/, /^음성메시지$/, /^(파일|첨부파일)\s*:/,
+  /^<?(사진|동영상|파일|보이스톡|페이스톡|라이브톡)[^>]*>?$/,
+  /^(보이스톡|페이스톡|라이브톡)\s*(해요|종료|취소)?$/, /^지도:/, /^샵검색:/,
+];
+const EMOTICON_PATTERNS = [/^\(?이모티콘\)?$/, /^이모티콘을 보냈습니다\.?$/];
+const DELETED_PATTERNS = [/^삭제된 메시지입니다\.?$/, /^(가려진|차단된) 메시지입니다\.?$/];
+
+class ParseError extends Error {}
+
+function classify(text) {
+  const t = text.trim();
+  if (DELETED_PATTERNS.some((r) => r.test(t))) return KIND.DELETED;
+  if (EMOTICON_PATTERNS.some((r) => r.test(t))) return KIND.EMOTICON;
+  if (MEDIA_PATTERNS.some((r) => r.test(t))) return KIND.MEDIA;
+  return KIND.TEXT;
+}
+const looksSystem = (text) => SYSTEM_PATTERNS.some((r) => r.test(text.trim()));
+
+function parseClock(value) {
+  const pm = value.includes("오후") || /\bpm\b/i.test(value);
+  const am = value.includes("오전") || /\bam\b/i.test(value);
+  const m = value.match(/(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  let hour = Number(m[1]);
+  const minute = Number(m[2]);
+  if (pm && hour < 12) hour += 12;
+  else if (am && hour === 12) hour = 0;
+  return [hour % 24, minute];
+}
+
+function parseDateLine(body) {
+  const m = body.match(KO_DATE_RE);
+  return m ? { y: +m[1], mo: +m[2], d: +m[3] } : null;
+}
+
+function parseSavedAt(value) {
+  const m = value.match(/(\d{4})[-.년/\s]+(\d{1,2})[-.월/\s]+(\d{1,2})/);
+  if (!m) return null;
+  const t = value.match(/(\d{1,2}):(\d{2})/);
+  return new Date(+m[1], +m[2] - 1, +m[3], t ? +t[1] : 0, t ? +t[2] : 0);
+}
+
+function parseText(raw) {
+  const lines = raw.split(/\r?\n/);
+  const messages = [];
+  let title = null, savedAt = null, currentDate = null, lastDt = null;
+  let pending = null, buffer = [], blankRun = 0, skipped = 0, bracketHits = 0, inlineHits = 0;
+
+  const flush = () => {
+    if (!pending) return;
+    let text = pending.text;
+    let kind = pending.kind;
+    if (buffer.length) {
+      text = [text, ...buffer].join("\n").replace(/^\n+|\n+$/g, "");
+      if (kind !== KIND.SYSTEM) kind = KIND.TEXT;
+    }
+    messages.push({ ...pending, text, kind });
+    pending = null; buffer = []; blankRun = 0;
+  };
+  const push = (msg) => { flush(); pending = msg; };
+
+  lines.forEach((rawLine, i) => {
+    const line = rawLine.replace(/\s+$/, "");
+    const lineNo = i + 1;
+    if (!line.trim()) { if (pending) blankRun += 1; return; }
+
+    // 날짜 구분선
+    const sep = line.match(SEPARATOR_RE);
+    if (sep) {
+      const found = parseDateLine(sep[1]);
+      if (found) { flush(); currentDate = found; return; }
+    }
+    if (BARE_DATE_RE.test(line.trim())) {
+      const found = parseDateLine(line);
+      if (found) { flush(); currentDate = found; return; }
+    }
+
+    // 머리말
+    if (!messages.length && !pending) {
+      const saved = line.trim().match(SAVED_AT_RE);
+      if (saved) { savedAt = parseSavedAt(saved[1]); return; }
+      const head = line.trim().match(HEADER_TITLE_RE);
+      if (head) { title = head[1].trim() || null; return; }
+    }
+
+    // [이름] [오후 1:23] 내용
+    const b = line.match(BRACKET_RE);
+    if (b) {
+      bracketHits += 1;
+      const clock = parseClock(b[2]);
+      if (clock) {
+        const dt = currentDate
+          ? new Date(currentDate.y, currentDate.mo - 1, currentDate.d, clock[0], clock[1])
+          : null;
+        if (dt) lastDt = dt;
+        push({ dt, sender: b[1].trim(), text: b[3], kind: classify(b[3]), lineNo });
+        return;
+      }
+    }
+
+    // 2026년 9월 1일 오후 1:23, 이름 : 내용
+    const n = line.match(INLINE_RE);
+    if (n) {
+      inlineHits += 1;
+      const clock = parseClock(n[4]);
+      if (clock) {
+        const dt = new Date(+n[1], +n[2] - 1, +n[3], clock[0], clock[1]);
+        currentDate = { y: +n[1], mo: +n[2], d: +n[3] };
+        lastDt = dt;
+        const rest = n[5];
+        const at = rest.indexOf(" : ");
+        if (at >= 0) {
+          const text = rest.slice(at + 3);
+          push({ dt, sender: rest.slice(0, at).trim(), text, kind: classify(text), lineNo });
+        } else {
+          push({ dt, sender: "", text: rest.trim(), kind: KIND.SYSTEM, lineNo });
+        }
+        return;
+      }
+    }
+
+    // 시스템 알림 (시각이 없어 직전 메시지 시각을 물려받는다)
+    if (looksSystem(line)) {
+      let dt = lastDt;
+      if (!dt || (currentDate && !sameYmd(dt, currentDate))) {
+        dt = currentDate ? new Date(currentDate.y, currentDate.mo - 1, currentDate.d) : null;
+      }
+      push({ dt, sender: "", text: line.trim(), kind: KIND.SYSTEM, lineNo });
+      return;
+    }
+
+    // 앞 메시지의 이어지는 줄
+    if (!pending) { skipped += 1; return; }
+    if (blankRun) { for (let k = 0; k < blankRun; k++) buffer.push(""); blankRun = 0; }
+    buffer.push(line);
+  });
+
+  flush();
+  if (!messages.length) {
+    throw new ParseError(
+      "카카오톡 대화 내용을 찾지 못했습니다. 카카오톡에서 '대화 내용 내보내기 → 텍스트만 보내기' 로 저장한 .txt 인지 확인해 주세요."
+    );
+  }
+  return {
+    messages, title, savedAt, skipped,
+    format: bracketHits >= inlineHits && bracketHits ? "bracket" : inlineHits ? "inline" : "unknown",
+  };
+}
+
+const sameYmd = (date, ymd) =>
+  date.getFullYear() === ymd.y && date.getMonth() + 1 === ymd.mo && date.getDate() === ymd.d;
+
+/* ---------- 2. 걸러내기 ---------- */
+
+const isSpeech = (m) => m.kind !== KIND.SYSTEM;
+const dayKey = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+function participantsOf(messages) {
+  const seen = [];
+  for (const m of messages) if (isSpeech(m) && m.sender && !seen.includes(m.sender)) seen.push(m.sender);
+  return seen;
+}
+
+function applyOptions(log, opts) {
+  let messages = log.messages.slice();
+  if (opts.noSystem) messages = messages.filter(isSpeech);
+  if (opts.lastDays) {
+    const stamps = messages.filter((m) => m.dt).map((m) => m.dt);
+    if (stamps.length) {
+      const end = stamps[stamps.length - 1];
+      const from = new Date(end.getFullYear(), end.getMonth(), end.getDate() - (opts.lastDays - 1));
+      messages = messages.filter((m) => m.dt && m.dt >= from);
+    }
+  }
+  if (opts.mask) {
+    const alias = new Map();
+    participantsOf(messages).forEach((name, i) => {
+      alias.set(name, `참여자 ${i < 26 ? String.fromCharCode(65 + i) : i + 1}`);
+    });
+    messages = messages.map((m) => ({ ...m, sender: alias.get(m.sender) ?? m.sender }));
+  }
+  return { ...log, messages };
+}
+
+/* ---------- 3. 분석 ---------- */
+
+const STOPWORDS = new Set(`
+그래 그건 그거 그럼 그리고 그래서 그러면 그런데 근데 하지만 그냥 진짜 정말 완전 제일 많이 조금
+지금 이제 아직 벌써 다시 혹시 아마 역시 그때 여기 저기 거기 이거 저거 요거 무슨 어떤 어디 언제
+감사 감사합니다 고맙습니다 죄송 죄송합니다 안녕하세요 안녕히 수고 수고하셨습니다 넵넵 알겠습니다
+생각 얘기 이야기 말씀 부분 경우 정도 문제 내용 사람 사진 동영상 이모티콘 카톡 카카오톡 메시지
+오늘 내일 모레 어제 오전 오후 시간 우리 저희 자기 당신 여러분 하나 가지 이번 다음 지난 매우
+같이 함께 먼저 나중 이상 이하 관련 확인 가능 필요 그전 오래 대해 대한 위해 통해 보니 보면
+저는 제가 저희 우리 그건 그게 이게 저게 전에 후에 그런 이런 저런 그램 뭔가 뭐가 일단 다들
+좋은 좋을 좋다 괜찮 부분들 이건 저건 그거야 어제는 오늘은 내일은 이거는 그러면
+`.trim().split(/\s+/));
+
+const JOSA = [
+  "에서는","에게서","한테서","으로는","이라고","라고는","에서도","에게는","이라는",
+  "으로써","으로서","이라도","까지는","부터는","만큼은","처럼은",
+  "에서","에게","한테","께서","까지","부터","보다","처럼","만큼","으로","라고",
+  "이나","이랑","이며","이다","이고","이라","에는","에도","에요","예요",
+  "은","는","이","가","을","를","에","의","와","과","도","만","로","님",
+];
+const VERB_TAIL_RE = /(니다|하세요|해주세요|주세요|드립니다|드려요|같아요|같습니다|하는|했던|해서|하고|해요|했어|했죠|하죠|네요|어요|아요|군요|거든요|더라고요|되나요|인가요|합시다|갑시다|봅시다|하시죠|보시죠|할까요|일까요|겠네요|되네요|해야|하면|되면|게요|겠어요|더라고|했고|됐고|하네|이죠|예요|까요|나요|가요)$/;
+const HADA_STEM_RE = /^([가-힣]{2,})(?:하는|하고|하기|하면|하며|하러|하죠|하자|하네|한다|했다|했고|했던|했는데|하는데|해야|해서|해요|해줘|해주세요|해주시면|해주실|했어요|했습니다|합니다|할게요|할까요|하겠습니다|하겠어요|되는|되고|된다|됩니다|됐어요|됐고|되어|돼서|되면|됐습니다)$/;
+const NUM_UNIT_RE = /\d+\s*만?\s*(?:시간|분간|개월|시|분|초|일|월|년|개|명|장|번|차|원|층|주|%|퍼센트|kg|km|cm|mm)/g;
+const HANGUL_WORD_RE = /[가-힣]{2,}/g;
+const LATIN_WORD_RE = /[A-Za-z][A-Za-z0-9+#._-]+/g;
+
+const URL_RE = /https?:\/\/[^\s<>()[\]]+|www\.[^\s<>()[\]]+/g;
+const MONEY_RE = /\d[\d,]*\s*(?:원|만원|천원|억원|억|달러|USD|불)/;
+const PHONE_RE = /01[016-9][-. ]?\d{3,4}[-. ]?\d{4}/g;
+const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+
+const DATE_MENTION_RE = /(?:\d{1,2}\s*월\s*\d{1,2}\s*일|\d{1,2}\/\d{1,2}(?!\d)|(?:이번|다음|담|저번|지난)\s*주(?:\s*[월화수목금토일]요일)?|[월화수목금토일]요일|오늘|내일|모레|글피|주말|평일|월말|월초|연휴|(?:오전|오후|아침|점심|저녁|밤)\s*\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?|\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?(?:\s*까지|\s*에|\s*부터)?)/;
+const DECISION_RE = /(하기로\s*(?:했|하|합|해)|가기로|정하기로|쓰기로|보기로|결정(?:했|됐|되었|하|입니다|됨)|확정(?:했|됐|되었|입니다|임|됨)|(?:하|가|쓰|보)는\s*걸로|하는걸로|그렇게\s*(?:하|가)|합시다|하시죠|하죠|갑시다|진행(?:하기로|합니다|할게|하겠)|최종|결론|확정안|승인(?:했|됐|되었|합니다))/;
+const TODO_RE = /(해\s*주세요|해주세요|해줘|해줄래|부탁(?:드립니다|드려요|합니다|해요|해|드릴게)|준비(?:해|하고|할게|해주|부탁|가 필요)|정리(?:해|해서|할게|부탁)|확인(?:해|부탁|좀|바랍|하겠|할게)|보내(?:주세요|드릴게|줘|겠습니다|드리겠)|올려(?:주세요|줘|드릴게)|공유(?:해|부탁|드릴게|하겠)|담당|맡아|맡을|처리(?:해|부탁|하겠|할게)|작성(?:해|부탁|하겠|할게)|까지\s*(?:해|완료|제출|보내|끝|마무리)|하겠습니다|할게요|할게|드릴게요)/;
+const QUESTION_RE = /(\?|까요|나요|인가요|가요\s*$|어때|언제|어디|누가|누구|얼마|몇\s*(?:시|명|개|일)|될까|되나|맞나|맞아|가능(?:한가|할까|해))/;
+
+const CATEGORIES = [
+  { key: "decision", label: "결정된 것" },
+  { key: "todo", label: "할 일" },
+  { key: "schedule", label: "일정 · 날짜" },
+  { key: "question", label: "답 없는 질문" },
+  { key: "link", label: "공유된 링크" },
+  { key: "money", label: "금액 언급" },
+];
+
+function normalizeToken(token) {
+  let word = token.trim();
+  if (!word) return null;
+  if (/^[A-Za-z][A-Za-z0-9+#._-]+$/.test(word)) return word.length >= 2 ? word.toLowerCase() : null;
+  if (!/^[가-힣]{2,}$/.test(word)) return null;
+  const stem = word.match(HADA_STEM_RE);
+  if (stem) return STOPWORDS.has(stem[1]) ? null : stem[1];
+  if (VERB_TAIL_RE.test(word)) return null;
+  for (const josa of JOSA) {
+    if (word.endsWith(josa) && word.length - josa.length >= 2) { word = word.slice(0, -josa.length); break; }
+  }
+  if (word.length < 2 || STOPWORDS.has(word)) return null;
+  return word;
+}
+
+function tokenize(text) {
+  const cleaned = text.replace(URL_RE, " ").replace(NUM_UNIT_RE, " ");
+  const raw = [...(cleaned.match(HANGUL_WORD_RE) || []), ...(cleaned.match(LATIN_WORD_RE) || [])];
+  return raw.map(normalizeToken).filter(Boolean);
+}
+
+function keywords(messages, topN = 15, minCount = 2) {
+  const counts = new Map(), speakers = new Map();
+  for (const m of messages) {
+    if (m.kind === KIND.SYSTEM) continue;
+    for (const token of new Set(tokenize(m.text))) {
+      counts.set(token, (counts.get(token) || 0) + 1);
+      if (!speakers.has(token)) speakers.set(token, new Set());
+      speakers.get(token).add(m.sender);
+    }
+  }
+  const make = (min) =>
+    [...counts.entries()]
+      .filter(([, c]) => c >= min)
+      .map(([word, count]) => ({ word, count, speakers: speakers.get(word).size }))
+      .sort((a, b) => b.count - a.count || b.speakers - a.speakers || a.word.localeCompare(b.word));
+  const ranked = make(minCount);
+  return (ranked.length ? ranked : make(1)).slice(0, topN);
+}
+
+function computeStats(messages) {
+  const stats = {
+    total: messages.length, speech: 0, system: 0, media: 0, emoticon: 0, deleted: 0, chars: 0,
+    perDay: new Map(), perHour: new Array(24).fill(0), people: new Map(), start: null, end: null,
+  };
+  for (const m of messages) {
+    if (m.kind === KIND.SYSTEM) { stats.system += 1; continue; }
+    stats.speech += 1;
+    stats.chars += m.text.length;
+    if (m.kind === KIND.MEDIA) stats.media += 1;
+    else if (m.kind === KIND.EMOTICON) stats.emoticon += 1;
+    else if (m.kind === KIND.DELETED) stats.deleted += 1;
+
+    if (!stats.people.has(m.sender)) {
+      stats.people.set(m.sender, { name: m.sender, messages: 0, chars: 0, media: 0, questions: 0, last: null });
+    }
+    const p = stats.people.get(m.sender);
+    p.messages += 1; p.chars += m.text.length;
+    if (m.kind === KIND.MEDIA) p.media += 1;
+    if (QUESTION_RE.test(m.text)) p.questions += 1;
+    if (m.dt) {
+      p.last = !p.last || m.dt > p.last ? m.dt : p.last;
+      const key = dayKey(m.dt);
+      stats.perDay.set(key, (stats.perDay.get(key) || 0) + 1);
+      stats.perHour[m.dt.getHours()] += 1;
+    }
+  }
+  const stamps = messages.filter((m) => m.dt).map((m) => m.dt);
+  stats.start = stamps[0] || null;
+  stats.end = stamps[stamps.length - 1] || null;
+  stats.activeDays = stats.perDay.size;
+  stats.spanDays = stats.start && stats.end
+    ? Math.round((new Date(stats.end.getFullYear(), stats.end.getMonth(), stats.end.getDate()) -
+        new Date(stats.start.getFullYear(), stats.start.getMonth(), stats.start.getDate())) / 86400000) + 1
+    : 0;
+  stats.participants = [...stats.people.values()]
+    .map((p) => ({ ...p, share: stats.speech ? p.messages / stats.speech : 0 }))
+    .sort((a, b) => b.messages - a.messages || a.name.localeCompare(b.name));
+  return stats;
+}
+
+const oneLine = (text, limit = 160) => {
+  const flat = text.split(/\s+/).filter(Boolean).join(" ");
+  return flat.length <= limit ? flat : flat.slice(0, limit - 1) + "…";
+};
+
+function findHits(messages, answerWindowMinutes = 120) {
+  const speech = messages.filter(isSpeech);
+  const hits = [];
+  const windowMs = answerWindowMinutes * 60000;
+
+  const answered = (index) => {
+    const asker = speech[index].sender;
+    const askedAt = speech[index].dt;
+    for (let j = index + 1; j < Math.min(speech.length, index + 40); j++) {
+      const later = speech[j];
+      if (later.sender === asker) continue;
+      if (askedAt && later.dt && later.dt - askedAt > windowMs) return false;
+      return true;
+    }
+    return false;
+  };
+
+  speech.forEach((m, i) => {
+    const text = m.text;
+    if (!text.trim()) return;
+    const snippet = oneLine(text);
+    if (DECISION_RE.test(text)) hits.push({ category: "decision", message: m, snippet });
+    if (TODO_RE.test(text)) hits.push({ category: "todo", message: m, snippet });
+    if (DATE_MENTION_RE.test(text) && text.length > 4) hits.push({ category: "schedule", message: m, snippet });
+    for (const url of text.match(URL_RE) || []) hits.push({ category: "link", message: m, snippet: url });
+    if (MONEY_RE.test(text)) hits.push({ category: "money", message: m, snippet });
+    if (QUESTION_RE.test(text) && !answered(i)) hits.push({ category: "question", message: m, snippet });
+  });
+
+  const grouped = {};
+  for (const { key } of CATEGORIES) grouped[key] = [];
+  const seen = new Set();
+  for (const hit of hits) {
+    const id = `${hit.category}|${hit.message.lineNo}|${hit.snippet}`;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    grouped[hit.category].push(hit);
+  }
+  return grouped;
+}
+
+const hasContactInfo = (messages) =>
+  messages.some((m) => { PHONE_RE.lastIndex = 0; EMAIL_RE.lastIndex = 0; return PHONE_RE.test(m.text) || EMAIL_RE.test(m.text); });
+
+const redactText = (text) =>
+  text.replace(PHONE_RE, "010-****-****").replace(EMAIL_RE, "***@***");
+
+/* ---------- 4. 요약 조립 ---------- */
+
+const WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"];
+const weekdayOf = (d) => WEEKDAYS[(d.getDay() + 6) % 7];
+
+function buildSections(messages, group) {
+  if (group === "none") return [];
+  const chunks = [];
+  if (group === "day") {
+    const buckets = new Map();
+    for (const m of messages) {
+      if (!m.dt) continue;
+      const key = dayKey(m.dt);
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(m);
+    }
+    for (const [key, msgs] of [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+      chunks.push({ label: `${key} (${weekdayOf(msgs[0].dt)})`, messages: msgs });
+    }
+  } else {
+    const gapMs = 180 * 60000;
+    let current = [], prev = null;
+    for (const m of messages) {
+      if (m.dt && prev && m.dt - prev > gapMs && current.length) { chunks.push({ messages: current }); current = []; }
+      current.push(m);
+      if (m.dt) prev = m.dt;
+    }
+    if (current.length) chunks.push({ messages: current });
+    chunks.forEach((chunk) => {
+      const stamps = chunk.messages.filter((m) => m.dt).map((m) => m.dt);
+      chunk.label = stamps.length
+        ? `${dayKey(stamps[0])} ${hhmm(stamps[0])} ~ ${hhmm(stamps[stamps.length - 1])}`
+        : "시간 정보 없음";
+    });
+  }
+  return chunks.map((chunk) => ({
+    label: chunk.label,
+    count: chunk.messages.filter(isSpeech).length,
+    speakers: speakerCounts(chunk.messages),
+    keywords: keywords(chunk.messages, 8, 2),
+    hits: limitHits(findHits(chunk.messages), 4),
+  }));
+}
+
+function speakerCounts(messages, top = 5) {
+  const counts = new Map();
+  for (const m of messages) if (isSpeech(m) && m.sender) counts.set(m.sender, (counts.get(m.sender) || 0) + 1);
+  return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, top);
+}
+
+function limitHits(grouped, max) {
+  const out = {};
+  for (const key of Object.keys(grouped)) out[key] = grouped[key].slice(0, max);
+  return out;
+}
+
+function summarize(log, opts) {
+  const messages = log.messages;
+  const stats = computeStats(messages);
+  const hits = limitHits(findHits(messages, opts.answerWindow ?? 120), 24);
+  const notes = [];
+  if (log.skipped) notes.push(`형식을 알 수 없어 건너뛴 줄 ${log.skipped.toLocaleString()}개가 있습니다.`);
+  if (stats.speech && !stats.start) notes.push("날짜 구분선이 없어 시간 정보 없이 요약했습니다.");
+  if (!opts.redact && hasContactInfo(messages)) {
+    notes.push("전화번호나 이메일이 들어 있습니다. 공유 전에 '전화번호 · 이메일 가리기' 를 켜 보세요.");
+  }
+  return {
+    title: log.title, stats, hits, notes,
+    keywords: keywords(messages, 15),
+    sections: buildSections(messages, opts.group),
+    group: opts.group,
+    headline: headlineOf(stats),
+  };
+}
+
+function headlineOf(stats) {
+  const span = stats.start && stats.end
+    ? `${dayKey(stats.start)} ~ ${dayKey(stats.end)}`
+    : "기간 정보 없음";
+  return `${span} 사이 ${stats.participants.length}명이 나눈 대화 ${stats.speech.toLocaleString()}건 (대화가 오간 날 ${stats.activeDays}일)`;
+}
+
+/* ---------- 5. 화면에 그리기 ---------- */
+
+const hhmm = (d) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+const stamp = (d) => (d ? `${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${hhmm(d)}` : "시각 미상");
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const linkify = (s) => esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+function lineHtml(hit, opts) {
+  const text = opts.redact ? redactText(hit.snippet) : hit.snippet;
+  const who = opts.redact ? redactText(hit.message.sender) : hit.message.sender;
+  return `<li class="line">
+    <span class="when">${esc(stamp(hit.message.dt))}</span>
+    <span class="what"><span class="who">${esc(who || "시스템")}</span> · ${linkify(text)}</span>
+  </li>`;
+}
+
+function renderReport(summary, opts, meta) {
+  const s = summary.stats;
+  const parts = [];
+
+  parts.push(`<div class="report-head">
+    <div>
+      <div class="report-title">${esc(summary.title || meta.name || "카카오톡 대화")}</div>
+      <p class="headline">${esc(summary.headline)}</p>
+    </div>
+  </div>`);
+
+  if (meta.isSample) {
+    parts.push(`<p class="sample-note">지금 보이는 것은 <b>예시 대화</b>로 만든 요약입니다. 왼쪽에 실제 파일을 넣으면 바뀝니다.</p>`);
+  }
+
+  const busiest = [...s.perDay.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0];
+  const peakHour = s.perHour.reduce((best, count, hour) => (count > best.count ? { hour, count } : best), { hour: -1, count: 0 });
+  parts.push(`<div class="tiles">
+    <div class="tile"><div class="k">메시지</div><div class="v">${s.speech.toLocaleString()}</div><div class="s">글자 ${s.chars.toLocaleString()}자</div></div>
+    <div class="tile"><div class="k">참여자</div><div class="v">${s.participants.length}</div><div class="s">${s.media ? `사진·파일 ${s.media}건` : "사진·파일 없음"}</div></div>
+    <div class="tile"><div class="k">대화한 날</div><div class="v">${s.activeDays}</div><div class="s">${s.spanDays ? `전체 ${s.spanDays}일 중` : "기간 정보 없음"}</div></div>
+    <div class="tile"><div class="k">가장 활발한 날</div><div class="v" style="font-size:16px">${busiest ? esc(busiest[0]) : "-"}</div><div class="s">${busiest ? `${busiest[1]}건` : ""}</div></div>
+  </div>`);
+
+  if (s.participants.length) {
+    const top = s.participants[0].messages || 1;
+    parts.push(`<section class="card"><h2>참여자</h2><div class="people">${s.participants
+      .map((p) => `<div>
+        <div class="person-top">
+          <span class="person-name">${esc(opts.redact ? redactText(p.name) : p.name)}</span>
+          <span class="person-num">${p.messages.toLocaleString()}건 · ${(p.share * 100).toFixed(1)}%${p.questions ? ` · 질문 ${p.questions}` : ""}</span>
+        </div>
+        <div class="track"><i style="width:${Math.max(2, (p.messages / top) * 100)}%"></i></div>
+      </div>`).join("")}</div></section>`);
+  }
+
+  if (summary.keywords.length) {
+    parts.push(`<section class="card"><h2>자주 나온 말</h2><div class="chips">${summary.keywords
+      .map((k) => `<span class="chip">${esc(k.word)}<b>${k.count}</b></span>`).join("")}</div></section>`);
+  }
+
+  const found = CATEGORIES.filter((c) => (summary.hits[c.key] || []).length);
+  if (found.length) {
+    parts.push(`<div class="finds">${found.map((c) => `
+      <section class="find" data-kind="${c.key}">
+        <h3><span class="mark"></span>${c.label}<span class="count">${summary.hits[c.key].length}건</span></h3>
+        <ul class="lines">${summary.hits[c.key].map((h) => lineHtml(h, opts)).join("")}</ul>
+      </section>`).join("")}</div>`);
+  } else {
+    parts.push(`<section class="card"><h2>뽑아낸 항목</h2><p class="empty">결정 · 할 일로 볼 만한 말이 없었습니다.</p></section>`);
+  }
+
+  if (summary.sections.length) {
+    parts.push(`<section class="card"><h2>${summary.group === "day" ? "날짜별 정리" : "대화 덩어리별 정리"}</h2>
+      ${summary.sections.map((sec) => {
+        const cats = CATEGORIES.filter((c) => (sec.hits[c.key] || []).length);
+        return `<div class="day">
+          <div class="day-head">
+            <span class="day-date">${esc(sec.label)}</span>
+            <span class="rule"></span>
+            <span class="day-count">${sec.count.toLocaleString()}건</span>
+          </div>
+          ${sec.keywords.length ? `<p class="day-keywords">주요 낱말: <b>${sec.keywords.map((k) => esc(k.word)).join(", ")}</b></p>` : ""}
+          ${sec.speakers.length ? `<p class="day-keywords">발언: ${sec.speakers.map(([n, c]) => `${esc(opts.redact ? redactText(n) : n)} ${c}`).join(", ")}</p>` : ""}
+          ${cats.map((c) => `<p class="day-keywords" style="margin-top:8px"><b>${c.label}</b></p>
+            <ul class="lines">${sec.hits[c.key].map((h) => lineHtml(h, opts)).join("")}</ul>`).join("")}
+        </div>`;
+      }).join("")}
+    </section>`);
+  }
+
+  const maxHour = Math.max(...s.perHour, 1);
+  if (s.perHour.some((n) => n > 0)) {
+    parts.push(`<section class="card"><h2>시간대별 대화량</h2>
+      <div class="hours">${s.perHour.map((count, hour) => `
+        <div class="col" data-empty="${count ? 0 : 1}" title="${hour}시 · ${count}건">
+          <i style="height:${count ? Math.max(4, (count / maxHour) * 100) : 2}%"></i>
+        </div>`).join("")}</div>
+      <div class="hour-axis">${s.perHour.map((_, hour) => `<span>${hour % 6 === 0 ? hour : ""}</span>`).join("")}</div>
+      <p class="chart-note">가장 많은 시간대는 ${peakHour.hour}시 (${peakHour.count.toLocaleString()}건) 입니다. 막대에 마우스를 올리면 시간대별 건수가 보입니다.</p>
+    </section>`);
+  }
+
+  if (summary.notes.length) {
+    parts.push(`<section class="card"><h2>참고</h2><ul class="lines">${summary.notes
+      .map((n) => `<li style="font-size:13.5px;color:var(--muted)">${esc(n)}</li>`).join("")}</ul></section>`);
+  }
+
+  return parts.join("");
+}
+
+/* ---------- 6. 마크다운 ---------- */
+
+function toMarkdown(summary, opts, meta) {
+  const s = summary.stats;
+  const out = [`# 카카오톡 대화 요약 — ${summary.title || meta.name || "카카오톡 대화"}`, "", `> ${summary.headline}`, ""];
+
+  out.push("## 한눈에 보기", "");
+  if (s.start && s.end) out.push(`- 기간: ${dayKey(s.start)} ${hhmm(s.start)} ~ ${dayKey(s.end)} ${hhmm(s.end)} (${s.spanDays}일 중 ${s.activeDays}일 대화)`);
+  out.push(`- 메시지: ${s.speech.toLocaleString()}건 · 글자 수 ${s.chars.toLocaleString()}자`);
+  out.push(`- 참여자: ${s.participants.length}명`);
+  const extras = [];
+  if (s.media) extras.push(`사진·파일 ${s.media}건`);
+  if (s.emoticon) extras.push(`이모티콘 ${s.emoticon}건`);
+  if (s.deleted) extras.push(`삭제된 메시지 ${s.deleted}건`);
+  if (s.system) extras.push(`입·퇴장 알림 ${s.system}건`);
+  if (extras.length) out.push(`- 그 밖에: ${extras.join(", ")}`);
+  out.push("");
+
+  if (s.participants.length) {
+    out.push("## 참여자", "", "| 이름 | 메시지 | 비중 | 글자 수 | 질문 |", "|---|---:|---:|---:|---:|");
+    for (const p of s.participants) {
+      const name = opts.redact ? redactText(p.name) : p.name;
+      out.push(`| ${name} | ${p.messages.toLocaleString()} | ${(p.share * 100).toFixed(1)}% | ${p.chars.toLocaleString()} | ${p.questions} |`);
+    }
+    out.push("");
+  }
+
+  if (summary.keywords.length) {
+    out.push("## 자주 나온 말", "", summary.keywords.map((k) => `**${k.word}**(${k.count})`).join(" · "), "");
+  }
+
+  const mdLine = (h) => {
+    const text = opts.redact ? redactText(h.snippet) : h.snippet;
+    const who = opts.redact ? redactText(h.message.sender) : h.message.sender;
+    return `- [${stamp(h.message.dt)}] ${who || "시스템"}: ${text}`;
+  };
+
+  for (const c of CATEGORIES) {
+    const items = summary.hits[c.key] || [];
+    if (!items.length) continue;
+    out.push(`## ${c.label}`, "", ...items.map(mdLine), "");
+  }
+
+  if (summary.sections.length) {
+    out.push(summary.group === "day" ? "## 날짜별 정리" : "## 대화 덩어리별 정리", "");
+    for (const sec of summary.sections) {
+      out.push(`### ${sec.label} · 메시지 ${sec.count.toLocaleString()}건`, "");
+      if (sec.keywords.length) out.push(`- 주요 낱말: ${sec.keywords.map((k) => k.word).join(", ")}`);
+      for (const c of CATEGORIES) {
+        const items = sec.hits[c.key] || [];
+        if (!items.length) continue;
+        out.push(`- ${c.label}:`, ...items.map((h) => "  " + mdLine(h)));
+      }
+      out.push("");
+    }
+  }
+
+  if (summary.notes.length) out.push("## 참고", "", ...summary.notes.map((n) => `- ${n}`), "");
+  out.push(`<sub>${new Date().toLocaleString("ko-KR")} · kakaosum 웹 버전으로 만들었습니다.</sub>`);
+  return out.join("\n");
+}
+
+/* ---------- 7. 화면 연결 ---------- */
+
+const $ = (id) => document.getElementById(id);
+const state = { raw: SAMPLE, name: "예시 대화.txt", isSample: true, markdown: "" };
+
+function readOptions() {
+  return {
+    lastDays: Number($("period").value),
+    group: $("group").value,
+    mask: $("opt-mask").checked,
+    redact: $("opt-redact").checked,
+    noSystem: $("opt-nosystem").checked,
+  };
+}
+
+function setStatus(message, isError = false) {
+  const el = $("status");
+  el.textContent = message;
+  el.classList.toggle("error", isError);
+}
+
+function run() {
+  const opts = readOptions();
+  try {
+    const parsed = parseText(state.raw);
+    const filtered = applyOptions(parsed, opts);
+    if (!filtered.messages.length) throw new ParseError("고른 기간에 해당하는 메시지가 없습니다.");
+    const summary = summarize(filtered, opts);
+    const meta = { name: state.name.replace(/\.txt$/i, ""), isSample: state.isSample };
+    $("report").innerHTML = renderReport(summary, opts, meta);
+    state.markdown = toMarkdown(summary, opts, meta);
+    setStatus(`${summary.stats.speech.toLocaleString()}건을 정리했습니다.`);
+  } catch (err) {
+    state.markdown = "";
+    $("report").innerHTML = `<section class="card"><h2>요약하지 못했습니다</h2><p class="empty">${esc(err.message)}</p></section>`;
+    setStatus(err.message, true);
+  }
+}
+
+async function readFile(file) {
+  const buffer = await file.arrayBuffer();
+  let text;
+  try {
+    text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+  } catch {
+    // PC 내보내기 파일은 cp949(euc-kr) 인 경우가 있다
+    text = new TextDecoder("euc-kr").decode(buffer);
+  }
+  state.raw = text.replace(/^﻿/, "");
+  state.name = file.name;
+  state.isSample = false;
+  $("file-name").textContent = file.name;
+  $("file-name").hidden = false;
+  run();
+}
+
+function wire() {
+  $("run").addEventListener("click", run);
+  for (const id of ["period", "group", "opt-mask", "opt-redact", "opt-nosystem"]) {
+    $(id).addEventListener("change", run);
+  }
+
+  const drop = $("drop");
+  const input = $("file-input");
+  drop.addEventListener("click", () => input.click());
+  drop.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
+  });
+  input.addEventListener("change", () => { if (input.files[0]) readFile(input.files[0]); });
+
+  for (const event of ["dragenter", "dragover"]) {
+    document.addEventListener(event, (e) => { e.preventDefault(); drop.classList.add("over"); });
+  }
+  for (const event of ["dragleave", "drop"]) {
+    document.addEventListener(event, (e) => { e.preventDefault(); if (e.type === "drop" || e.target === drop) drop.classList.remove("over"); });
+  }
+  document.addEventListener("drop", (e) => {
+    const file = e.dataTransfer?.files?.[0];
+    if (file) readFile(file);
+  });
+
+  $("use-paste").addEventListener("click", () => {
+    const text = $("paste").value;
+    if (!text.trim()) { setStatus("붙여넣은 내용이 없습니다.", true); return; }
+    state.raw = text;
+    state.name = "붙여넣은 대화";
+    state.isSample = false;
+    $("file-name").hidden = true;
+    run();
+  });
+
+  $("load-sample").addEventListener("click", () => {
+    state.raw = SAMPLE; state.name = "예시 대화.txt"; state.isSample = true;
+    $("file-name").hidden = true;
+    $("paste-box").open = false;
+    run();
+  });
+
+  $("copy").addEventListener("click", async () => {
+    if (!state.markdown) { setStatus("먼저 요약을 만들어 주세요.", true); return; }
+    try {
+      await navigator.clipboard.writeText(state.markdown);
+      setStatus("마크다운을 클립보드에 복사했습니다.");
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = state.markdown;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+      setStatus("마크다운을 클립보드에 복사했습니다.");
+    }
+  });
+
+  const save = $("save");
+  save.addEventListener("click", saveMarkdown);
+  prepareSaving(save);
+}
+
+/* 저장하기
+   - 파일을 직접 열었을 때(file:// 또는 웹서버): 보통의 내려받기
+   - claude.ai 안에서 볼 때: 내려받기가 막혀 있으므로 downloads 기능을 거친다 */
+let downloadHost = null;
+
+async function prepareSaving(button) {
+  if (window.self === window.top) return;          // 창 안이 아니면 그대로 쓴다
+  button.disabled = true;
+  try {
+    downloadHost = window.claude?.use ? await window.claude.use("downloads") : null;
+  } catch {
+    downloadHost = null;
+  }
+  if (downloadHost) button.disabled = false;
+  else button.hidden = true;                        // 저장이 불가능한 창 - '복사' 로 안내
+}
+
+async function saveMarkdown() {
+  if (!state.markdown) { setStatus("먼저 요약을 만들어 주세요.", true); return; }
+  const filename = `${state.name.replace(/\.txt$/i, "")}_요약.md`;
+
+  if (downloadHost) {
+    try {
+      await downloadHost.save({ filename, data: state.markdown });
+      setStatus("요약을 .md 파일로 저장했습니다.");
+    } catch (err) {
+      if (err?.code === "declined") setStatus("저장을 취소했습니다.");
+      else setStatus("저장하지 못했습니다. '마크다운 복사' 를 써 주세요.", true);
+    }
+    return;
+  }
+
+  const blob = new Blob([state.markdown], { type: "text/markdown;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  setStatus("요약을 .md 파일로 저장했습니다.");
+}
+
+wire();
+run();
+</script>
+</body>
+</html>
