@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlowMind</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="toolbar">
+   <div id="toolbarScroll">
+    <div class="brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/>
+        <path d="M7.5 12h4M11.5 12c3 0 2.5-6 5-6M11.5 12c3 0 2.5 6 5 6"/>
+      </svg>
+      <span>FlowMind</span>
+    </div>
+
+    <div class="group">
+      <button data-act="new" title="새 마인드맵 (Ctrl+N)">새 문서</button>
+      <button data-act="open" title="파일 열기 (Ctrl+O)">열기</button>
+      <button data-act="save" title="파일로 저장 (Ctrl+S)">저장</button>
+      <button data-act="png" title="PNG로 내보내기 (Ctrl+E)">PNG</button>
+      <button data-act="csv-out" title="전체 노드와 주석을 CSV로 내보내기 (엑셀에서 열림)">CSV ↓</button>
+      <button data-act="csv-in" title="CSV에서 전체 노드와 주석 불러오기">CSV ↑</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="group">
+      <button data-act="child" title="서브 노드 추가 - 한 단계 아래에 붙습니다 (Tab)">+ 서브</button>
+      <button data-act="sibling" title="메인 노드 추가 - 같은 단계에 나란히 붙습니다 (Enter)">+ 메인</button>
+      <button data-act="delete" title="노드 삭제 (Delete)">삭제</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="group palette" id="palette"></div>
+
+    <div class="sep"></div>
+
+    <div class="group">
+      <button data-act="undo" title="실행 취소 (Ctrl+Z)">↶</button>
+      <button data-act="redo" title="다시 실행 (Ctrl+Y)">↷</button>
+      <button data-act="layout" title="자동 정렬 (Ctrl+L)">정렬</button>
+      <button data-act="fit" title="화면에 맞추기 (Ctrl+0)">맞춤</button>
+      <button data-act="theme" title="라이트/다크 전환">◐</button>
+      <button data-act="note-toggle" id="noteToggle" title="주석창 접기/펴기 (Ctrl+M)">»</button>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="status"><span id="fileName">제목 없음</span><span id="saveState"></span></div>
+   </div>
+   <button id="licBadge" title="정품 인증 상태">확인 중…</button>
+  </header>
+
+  <div id="main">
+    <main id="stage">
+      <div id="world">
+        <svg id="edges" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="nodes"></div>
+      </div>
+      <div id="zoomBadge">100%</div>
+      <button id="helpBtn" title="단축키 도움말">?</button>
+      <button id="noteExpand" data-act="note-toggle" title="주석창 펴기 (Ctrl+M)">«</button>
+    </main>
+
+    <aside id="notePanel">
+      <div class="note-head">
+        <span class="note-swatch" id="noteSwatch"></span>
+        <span class="note-title" id="noteTitle">중심 주제</span>
+        <button class="note-chev" data-act="note-toggle" title="주석창 접기 (Ctrl+M)">»</button>
+      </div>
+
+      <div class="note-bar">
+        <div class="note-bar-row">
+          <select id="fontFamily" title="글씨 종류">
+            <option value='"Malgun Gothic","맑은 고딕",sans-serif'>맑은 고딕</option>
+            <option value='"NanumGothic","나눔고딕",sans-serif'>나눔고딕</option>
+            <option value='"Gulim","굴림",sans-serif'>굴림</option>
+            <option value='"Dotum","돋움",sans-serif'>돋움</option>
+            <option value='"Batang","바탕",serif'>바탕</option>
+            <option value='"Segoe UI",sans-serif'>Segoe UI</option>
+            <option value='Consolas,"D2Coding",monospace'>Consolas</option>
+          </select>
+          <select id="fontSize" title="글씨 크기">
+            <option>11</option><option>12</option><option>13</option>
+            <option selected>14</option><option>16</option><option>18</option>
+            <option>20</option><option>24</option><option>28</option><option>32</option>
+          </select>
+          <select id="fontWeight" title="글씨 두께">
+            <option value="300">얇게</option>
+            <option value="400" selected>보통</option>
+            <option value="600">굵게</option>
+            <option value="800">아주 굵게</option>
+          </select>
+          <input type="color" id="fontColor" value="#e6e9f0" title="글씨 색상" />
+        </div>
+        <div class="note-bar-row">
+          <button data-cmd="bold" title="굵게"><b>B</b></button>
+          <button data-cmd="italic" title="기울임"><i>I</i></button>
+          <button data-cmd="underline" title="밑줄"><u>U</u></button>
+          <button data-cmd="insertUnorderedList" title="글머리 기호 목록">•≡</button>
+          <button data-cmd="removeFormat" title="서식 지우기">✕</button>
+          <span class="note-bar-sep"></span>
+          <button id="noteImage" title="사진 삽입 (붙여넣기·끌어놓기도 됩니다)">🖼 사진</button>
+          <button id="noteCsvOut" title="이 노드의 주석만 CSV로 내보내기">CSV ↓</button>
+          <button id="noteCsvIn" title="CSV에서 이 노드의 주석만 불러오기">CSV ↑</button>
+        </div>
+      </div>
+
+      <div id="noteEditor" contenteditable="true" spellcheck="false"
+           data-placeholder="선택한 노드에 대한 메모를 여기에 적으세요."></div>
+
+      <div id="imgTools" hidden>
+        <div class="img-outline"></div>
+        <div class="img-bar">
+          <button id="imgRotL" title="왼쪽으로 90° 회전">↺</button>
+          <button id="imgRotR" title="오른쪽으로 90° 회전">↻</button>
+          <button id="imgReset" title="원래 크기로 되돌리기">원본</button>
+          <button id="imgDel" title="이 사진 삭제">삭제</button>
+        </div>
+        <div class="img-handle" id="imgHandle" title="끌어서 크기 조절"></div>
+      </div>
+
+      <div class="note-foot"><span id="noteInfo"></span></div>
+    </aside>
+  </div>
+
+  <div id="helpPanel" hidden>
+    <h3>단축키</h3>
+    <ul>
+      <li><b>Tab</b> 또는 <b>Ctrl+=</b> 서브 노드 추가 (한 단계 아래)</li>
+      <li><b>Enter</b> 또는 <b>Ctrl+Shift+=</b> 메인 노드 추가 (같은 단계)</li>
+      <li><b>Enter</b> 편집 확정</li>
+      <li><b>F2</b> 또는 <b>더블클릭</b> 이름 편집</li>
+      <li><b>Shift+Enter</b> 편집 중 줄바꿈</li>
+      <li><b>Delete</b> 노드 삭제 (하위 포함)</li>
+      <li><b>방향키</b> 노드 간 이동</li>
+      <li><b>Space</b> 접기 / 펴기</li>
+      <li><b>1~8</b> 노드 색상 변경, <b>0</b> 색상 해제</li>
+      <li><b>드래그</b> 노드 이동(하위 함께) / 빈 곳 드래그는 화면 이동</li>
+      <li><b>마우스 휠</b> 확대·축소</li>
+      <li><b>Ctrl+M</b> 주석창 접기 / 펴기</li>
+      <li><b>Ctrl+L</b> 자동 정렬, <b>Ctrl+0</b> 화면 맞춤</li>
+      <li><b>Ctrl+Z / Ctrl+Y</b> 실행 취소 / 다시 실행</li>
+      <li><b>Ctrl+S / Ctrl+O / Ctrl+N</b> 저장 / 열기 / 새로 만들기</li>
+      <li><b>Ctrl+E</b> PNG 내보내기</li>
+    </ul>
+    <button id="helpClose">닫기</button>
+  </div>
+
+  <div id="gate" hidden>
+    <div class="gate-box">
+      <h2 id="gateTitle">무료 체험 기간이 끝났습니다</h2>
+      <p id="gateDesc">
+        FlowMind 무료 버전은 처음 실행한 때부터 24시간 동안 쓸 수 있습니다.<br>
+        아래 <b>기기 코드</b>를 구입처에 알려주시면 이 PC 전용 인증키를 받으실 수 있습니다.
+      </p>
+      <input id="gateSerial" maxlength="19" spellcheck="false" autocomplete="off"
+             placeholder="인증키 XXXX-XXXX-XXXX-XXXX" />
+      <div class="gate-machine">
+        이 PC의 기기 코드 <code id="gateMachine">…</code>
+        <button id="gateCopy" title="기기 코드 복사">복사</button>
+      </div>
+      <div class="gate-msg" id="gateMsg"></div>
+      <div class="gate-actions">
+        <button id="gateActivate" class="primary">정품 인증</button>
+        <button id="gateSave">작업 내용 저장</button>
+        <button id="gateClose" hidden>닫기</button>
+        <button id="gateQuit">종료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PNG 로 내보낼 때 함께 담을 주석 고르기 -->
+  <div id="pngDlg" hidden>
+    <div class="png-box" role="dialog" aria-modal="true" aria-labelledby="pngTitle">
+      <h2 id="pngTitle">PNG 내보내기</h2>
+      <p class="png-desc">이미지에 함께 담을 주석을 고르세요. 고른 주석은 마인드맵 아래에 순서대로 붙습니다.</p>
+      <div class="png-tools">
+        <button id="pngAll">전체 선택</button>
+        <button id="pngNone">전체 해제</button>
+        <span class="png-count" id="pngCount"></span>
+      </div>
+      <div class="png-list" id="pngList"></div>
+      <div class="png-actions">
+        <button id="pngCancel">취소</button>
+        <button id="pngOk" class="primary">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ctrl 을 1초 이상 누르고 있으면 화면 가운데에 뜬다 -->
+  <div id="cheat" aria-hidden="true">
+    <div class="cheat-box">
+      <div class="cheat-title">단축키 <span>Ctrl 을 누르고 있는 동안 표시됩니다</span></div>
+      <div class="cheat-cols">
+        <div class="cheat-col">
+          <div class="cheat-h">Ctrl 조합</div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>=</kbd></span><span>서브 노드 추가</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>=</kbd></span><span>메인 노드 추가</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>S</kbd></span><span>파일로 저장</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>O</kbd></span><span>파일 열기</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>N</kbd></span><span>새 문서</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>E</kbd></span><span>PNG 내보내기</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>L</kbd></span><span>자동 정렬</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>0</kbd></span><span>화면에 맞추기</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>M</kbd></span><span>주석창 접기 / 펴기</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Ctrl</kbd><kbd>Z</kbd> <kbd>Y</kbd></span><span>실행 취소 / 다시 실행</span></div>
+        </div>
+        <div class="cheat-col">
+          <div class="cheat-h">그 밖의 조작</div>
+          <div class="cheat-row"><span class="k"><kbd>Tab</kbd></span><span>서브 노드 추가</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Enter</kbd></span><span>메인 노드 추가</span></div>
+          <div class="cheat-row"><span class="k"><kbd>F2</kbd></span><span>이름 편집</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Delete</kbd></span><span>노드 삭제 (하위 포함)</span></div>
+          <div class="cheat-row"><span class="k"><kbd>Space</kbd></span><span>접기 / 펴기</span></div>
+          <div class="cheat-row"><span class="k"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></span><span>노드 간 이동</span></div>
+          <div class="cheat-row"><span class="k"><kbd>1</kbd>~<kbd>8</kbd></span><span>노드 색상, <kbd>0</kbd> 해제</span></div>
+          <div class="cheat-row"><span class="k"><kbd>드래그</kbd></span><span>노드 이동 (하위 함께)</span></div>
+          <div class="cheat-row"><span class="k"><kbd>휠</kbd></span><span>확대 · 축소</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <input type="file" id="imageInput" accept="image/*" hidden />
+  <script src="license.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

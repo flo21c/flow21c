@@ -1,0 +1,48 @@
+{
+  "name": "flowmind",
+  "version": "1.0.0",
+  "description": "윈도우용 마인드맵 노트 앱",
+  "main": "main.js",
+  "author": "",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "keygen": "node tools/keygen.js",
+    "dist": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.flowmind.app",
+    "productName": "FlowMind",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "license-core.js",
+      "license-secret.js",
+      "renderer/**/*",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": ["nsis", "portable"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "FlowMind",
+      "artifactName": "FlowMind-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "FlowMind-${version}-portable.${ext}"
+    }
+  }
+}

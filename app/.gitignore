@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# 인증키 비밀값 — 절대 커밋하지 말 것
+license-secret.js
